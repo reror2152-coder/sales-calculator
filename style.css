@@ -1,0 +1,200 @@
+/* إعدادات الخطوط والخلفية العامة */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+/* الحاوية الرئيسية للتطبيق */
+.app-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* التصميم المتجاوب للشاشات الصغيرة (الجوال) */
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* الكروت الرئيسية */
+.main-card, .history-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.app-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+    border-right: 4px solid #3498db;
+    padding-right: 10px;
+    font-size: 18px;
+}
+
+/* المدخلات */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+    .input-group {
+        flex-direction: column;
+    }
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+}
+
+/* الأزرار */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary { background-color: #3498db; color: white; width: 100%; }
+.btn-primary:hover { background-color: #2980b9; }
+
+.btn-success { background-color: #2ecc71; color: white; flex: 2; }
+.btn-success:hover { background-color: #27ae60; }
+
+.btn-danger { background-color: #e74c3c; color: white; flex: 1; }
+.btn-danger:hover { background-color: #c0392b; }
+
+.btn-secondary { background-color: #95a5a6; color: white; width: 100%; margin-top: 15px; }
+.btn-secondary:hover { background-color: #7f8c8d; }
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* الجداول */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #7f8c8d;
+}
+
+/* بار المجموع */
+.total-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ecf0f1;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.total-amount {
+    color: #2ecc71;
+}
+
+/* السجل */
+.history-list {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-item {
+    background: #fdfdfd;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 12px;
+    position: relative;
+    border-right: 4px solid #2ecc71;
+}
+
+.history-time {
+    font-size: 11px;
+    color: #95a5a6;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.history-total {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.empty-msg {
+    text-align: center;
+    color: #bdc3c7;
+    font-style: italic;
+    padding: 20px;
+}
+
+.delete-item-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-weight: bold;
+}
