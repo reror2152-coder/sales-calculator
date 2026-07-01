@@ -27,7 +27,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-size: 18
+        node-version: 18
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -50,17 +50,16 @@ jobs:
     - name: Inject WebView URL Redirect
       run: |
         cd myApp
-        # تعديل ملف config.xml للسماح بالروابط الخارجية والتوجيه للموقع المطلوب
         sed -i 's|<content src="index.html" />|<content src="'"${{ github.event.inputs.site_url }}"'" />|' config.xml
         sed -i 's|<allow-intent href="http://\* /\*" />|<allow-navigation href="\*" />\n    <allow-intent href="http://\* /\*" />|' config.xml
 
-    - name: Build Android APK
+    - name: Build Android APK (Debug Mode)
       run: |
         cd myApp
-        cordova build android --release -- --packageType=apk
+        cordova build android --debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ github.event.inputs.app_name }}-APK
-        path: myApp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: myApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
