@@ -1,0 +1,66 @@
+name: Build Android APK from URL
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'اسم التطبيق (باللغة الإنجليزية أو العربية)'
+        required: true
+        default: 'MyWebSiteApp'
+      app_id:
+        description: 'معرف التطبيق الفريد (مثال: com.mycompany.myapp)'
+        required: true
+        default: 'com.custom.webviewapp'
+      site_url:
+        description: 'رابط الموقع المراد تحويله إلى تطبيق'
+        required: true
+        default: 'https://example.com'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-size: 18
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install Cordova CLI
+      run: npm install -g cordova
+
+    - name: Create Cordova Project
+      run: |
+        cordova create myApp "${{ github.event.inputs.app_id }}" "${{ github.event.inputs.app_name }}"
+        cd myApp
+        cordova platform add android
+
+    - name: Inject WebView URL Redirect
+      run: |
+        cd myApp
+        # تعديل ملف config.xml للسماح بالروابط الخارجية والتوجيه للموقع المطلوب
+        sed -i 's|<content src="index.html" />|<content src="'"${{ github.event.inputs.site_url }}"'" />|' config.xml
+        sed -i 's|<allow-intent href="http://\* /\*" />|<allow-navigation href="\*" />\n    <allow-intent href="http://\* /\*" />|' config.xml
+
+    - name: Build Android APK
+      run: |
+        cd myApp
+        cordova build android --release -- --packageType=apk
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ github.event.inputs.app_name }}-APK
+        path: myApp/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
