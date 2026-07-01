@@ -1,137 +1,119 @@
-// مصفوفة لتخزين عناصر الطلب الحالي
-let currentOrder = [];
-// مصفوفة لتخزين سجل الطلبات السابقة (تحمل البيانات من الذاكرة المحلية إن وجدت)
-let orderHistory = JSON.parse(localStorage.getItem('salesHistory')) || [];
+let cart = [];
+let ordersHistory = JSON.parse(localStorage.getItem('ordersHistory')) || [];
 
-// ربط عناصر الواجهة
-const itemNameInput = document.getElementById('itemName');
-const itemPriceInput = document.getElementById('itemPrice');
-const itemQtyInput = document.getElementById('itemQty');
-const addBtn = document.getElementById('addBtn');
-const orderItemsContainer = document.getElementById('orderItems');
-const finalTotalText = document.getElementById('finalTotal');
-const clearBtn = document.getElementById('clearBtn');
-const saveOrderBtn = document.getElementById('saveOrderBtn');
-const historyList = document.getElementById('historyList');
-const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+// تحديث السجل عند فتح التطبيق
+updateHistoryUI();
 
-// تشغيل عرض السجل عند فتح التطبيق لأول مرة
-renderHistory();
-
-// حدث إضافة منتج للطلب الحالي
-addBtn.addEventListener('click', () => {
-    const name = itemNameInput.value.trim();
-    const price = parseFloat(itemPriceInput.value);
-    const qty = parseInt(itemQtyInput.value);
+function addToCart() {
+    const name = document.getElementById('prod-name').value.trim();
+    const price = parseFloat(document.getElementById('prod-price').value);
+    const qty = parseInt(document.getElementById('prod-qty').value);
 
     if (!name || isNaN(price) || price <= 0 || isNaN(qty) || qty <= 0) {
-        alert('الرجاء إدخال بيانات المنتج بشكل صحيح.');
+        alert('الرجاء إدخال بيانات المنتج بشكل صحيح!');
         return;
     }
 
-    // إضافة المنتج للمصفوفة
-    currentOrder.push({ id: Date.now(), name, price, qty });
+    const itemTotal = price * qty;
+    cart.push({ name, price, qty, total: itemTotal });
     
-    // إعادة تعيين المدخلات
-    itemNameInput.value = '';
-    itemPriceInput.value = '';
-    itemQtyInput.value = '1';
+    // إعادة تعيين الحقول لسرعة الإدخال التالي
+    document.getElementById('prod-name').value = '';
+    document.getElementById('prod-price').value = '';
+    document.getElementById('prod-qty').value = '1';
 
-    updateOrderTable();
-});
+    updateCartUI();
+}
 
-// تحديث جدول الطلب الحالي
-function updateOrderTable() {
-    orderItemsContainer.innerHTML = '';
+function updateCartUI() {
+    const tbody = document.getElementById('cart-table-body');
+    tbody.innerHTML = '';
     let total = 0;
 
-    currentOrder.forEach((item, index) => {
-        const itemTotal = item.price * item.qty;
-        total += itemTotal;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.price.toFixed(2)} ريال</td>
-            <td>${item.qty}</td>
-            <td>${itemTotal.toFixed(2)} ريال</td>
-            <td><button class="delete-item-btn" onclick="deleteCurrentItem(${item.id})">❌</button></td>
+    cart.forEach((item) => {
+        total += item.total;
+        tbody.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.price.toFixed(2)}</td>
+                <td>${item.qty}</td>
+                <td>${item.total.toFixed(2)}</td>
+            </tr>
         `;
-        orderItemsContainer.appendChild(row);
     });
 
-    finalTotalText.innerText = `${total.toFixed(2)} ريال`;
+    document.getElementById('cart-total').innerText = total.toFixed(2);
 }
 
-// حذف عنصر من الطلب الحالي
-window.deleteCurrentItem = function(id) {
-    currentOrder = currentOrder.filter(item => item.id !== id);
-    updateOrderTable();
-};
+function clearCart() {
+    cart = [];
+    updateCartUI();
+}
 
-// تفريغ الطلب الحالي (السلة)
-clearBtn.addEventListener('click', () => {
-    if (confirm('هل أنت متأكد من تفريغ السلة الحالية؟')) {
-        currentOrder = [];
-        updateOrderTable();
-    }
-});
-
-// حفظ وإغلاق الطلب الحالي وترحيله للسجل
-saveOrderBtn.addEventListener('click', () => {
-    if (currentOrder.length === 0) {
-        alert('السلة فارغة! لا يمكن حفظ طلب فارغ.');
+function saveAndPrintOrder() {
+    if (cart.length === 0) {
+        alert('السلة فارغة! أضف منتجات أولاً للطلب.');
         return;
     }
 
-    const total = currentOrder.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const timestamp = new Date().toLocaleString('ar-EG', { hour12: true });
+    const total = parseFloat(document.getElementById('cart-total').innerText);
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-SA') + ' ' + now.toLocaleTimeString('ar-SA');
 
-    // إنشاء كائن الطلب المحفوظ
-    const savedOrder = {
-        id: Date.now(),
-        time: timestamp,
-        total: total,
-        itemsCount: currentOrder.reduce((sum, item) => sum + item.qty, 0)
+    const order = {
+        date: dateStr,
+        items: cart,
+        total: total
     };
 
-    // إضافة للسجل وحفظه بالذاكرة المحلية
-    orderHistory.unshift(savedOrder); // يوضع في البداية ليظهر كأحدث طلب
-    localStorage.setItem('salesHistory', JSON.stringify(orderHistory));
+    // حفظ في السجل المحلي مؤقتاً
+    ordersHistory.unshift(order);
+    localStorage.setItem('ordersHistory', JSON.stringify(ordersHistory));
 
-    // تفريغ السلة الحالية وتحديث العرض
-    currentOrder = [];
-    updateOrderTable();
-    renderHistory();
-    alert('تم حفظ الطلب بنجاح في السجل!');
-});
+    // 🖨️ تجهيز الفاتورة للطباعة الحرارية
+    document.getElementById('receipt-date').innerText = `التاريخ: ${dateStr}`;
+    const receiptItemsContainer = document.getElementById('receipt-items');
+    receiptItemsContainer.innerHTML = '';
 
-// عرض سجل الطلبات
-function renderHistory() {
-    historyList.innerHTML = '';
-
-    if (orderHistory.length === 0) {
-        historyList.innerHTML = '<p class="empty-msg">لا توجد طلبات مسجلة بعد.</p>';
-        return;
-    }
-
-    orderHistory.forEach(order => {
-        const div = document.createElement('div');
-        div.className = 'history-item';
-        div.innerHTML = `
-            <span class="history-time">📅 ${order.time}</span>
-            <div class="history-total">إجمالي الفاتورة: ${order.total.toFixed(2)} ريال</div>
-            <small style="color: #7f8c8d;">عدد القطع: ${order.itemsCount}</small>
+    cart.forEach(item => {
+        receiptItemsContainer.innerHTML += `
+            <div class="receipt-line">
+                <span>${item.name} (x${item.qty})</span>
+                <span>${item.total.toFixed(2)} ريال</span>
+            </div>
         `;
-        historyList.appendChild(div);
+    });
+    document.getElementById('receipt-total-val').innerText = `${total.toFixed(2)} ريال`;
+
+    // استدعاء نافذة الطباعة التلقائية للجوال لتتصل بالطابعة المحمولة
+    setTimeout(() => {
+        window.print();
+        // تفريغ السلة وتحديث السجل بعد الطباعة
+        cart = [];
+        updateCartUI();
+        updateHistoryUI();
+    }, 500);
+}
+
+function updateHistoryUI() {
+    const container = document.getElementById('orders-history');
+    container.innerHTML = '';
+
+    ordersHistory.forEach((order) => {
+        container.innerHTML += `
+            <div class="order-card" style="border-right: 4px solid #2ecc71;">
+                <p style="margin: 0; font-size: 12px; color: #7f8c8d;">📅 ${order.date}</p>
+                <p style="margin: 5px 0; font-weight: bold;">إجمالي الفاتورة: ${order.total.toFixed(2)} ريال</p>
+                <span style="font-size: 13px; color: #555;">عدد القطع: ${order.items.length}</span>
+            </div>
+        `;
     });
 }
 
-// مسح السجل بالكامل
-clearHistoryBtn.addEventListener('click', () => {
-    if (confirm('هل أنت متأكد من حذف السجل بالكامل؟ لا يمكن التراجع عن هذا الإجراء.')) {
-        orderHistory = [];
-        localStorage.removeItem('salesHistory');
-        renderHistory();
+function clearHistory() {
+    if (confirm('هل أنت متأكد من مسح جميع الفواتير السابقة من السجل؟')) {
+        ordersHistory = [];
+        localStorage.removeItem('ordersHistory');
+        updateHistoryUI();
     }
-});
+}
