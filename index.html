@@ -3,66 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حاسبة الطلبات والمبيعات الذكية</title>
+    <title>حاسبة الطلبات والمبيعات الاحترافية</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- قسم إضافة وحساب الطلب الحالي -->
-        <main class="main-card">
-            <h1 class="app-title">📊 حاسبة الطلبات والمبيعات</h1>
-            
-            <section class="form-section">
-                <h3>➕ إضافة منتج جديد</h3>
-                <div class="input-group">
-                    <input type="text" id="itemName" placeholder="اسم المنتج (مثلاً: صندوق طماطم)">
-                    <input type="number" id="itemPrice" placeholder="السعر" step="0.01">
-                    <input type="number" id="itemQty" placeholder="الكمية" value="1" min="1">
-                </div>
-                <button id="addBtn" class="btn btn-primary">إضافة للطلب</button>
-            </section>
-
-            <section class="order-section">
-                <h3>🛒 تفاصيل الطلب الحالي</h3>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>المنتج</th>
-                                <th>السعر</th>
-                                <th>الكمية</th>
-                                <th>الإجمالي</th>
-                                <th>إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orderItems">
-                            <!-- المنتجات المضافة تظهر هنا -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="total-bar">
-                    <span>المجموع النهائي:</span>
-                    <span id="finalTotal" class="total-amount">0.00 ريال</span>
-                </div>
-
-                <div class="action-buttons">
-                    <button id="saveOrderBtn" class="btn btn-success">✅ حفظ وإغلاق الطلب</button>
-                    <button id="clearBtn" class="btn btn-danger">🗑️ تفريغ السلة</button>
-                </div>
-            </section>
-        </main>
-
-        <!-- قسم سجل الطلبات المحفوظة الجديد -->
-        <aside class="history-card">
-            <h3>📜 سجل الطلبات السابقة</h3>
-            <div id="historyList" class="history-list">
-                <!-- الطلبات المحفوظة تظهر هنا كبطاقات -->
-                <p class="empty-msg">لا توجد طلبات مسجلة بعد.</p>
+    <div class="container">
+        <h1>📊 حاسبة الطلبات والمبيعات</h1>
+        
+        <div class="order-card">
+            <h3>➕ إضافة منتج جديد</h3>
+            <div class="form-group">
+                <label>اسم المنتج:</label>
+                <input type="text" id="prod-name" placeholder="مثال: صندوق طماطم">
             </div>
-            <button id="clearHistoryBtn" class="btn btn-secondary">مسح السجل بالكامل</button>
-        </aside>
+            <div class="form-group">
+                <label>السعر (ريال):</label>
+                <input type="number" id="prod-price" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>الكمية:</label>
+                <input type="number" id="prod-qty" value="1" min="1">
+            </div>
+            <button class="btn-primary" onclick="addToCart()">إضافة للطلب</button>
+        </div>
+
+        <h3>🛒 تفاصيل الطلب الحالي</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>المنتج</th>
+                    <th>السعر</th>
+                    <th>الكمية</th>
+                    <th>الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody id="cart-table-body">
+                </tbody>
+        </table>
+
+        <div class="total-section">
+            المجموع النهائي: <span id="cart-total">0.00</span> ريال
+        </div>
+
+        <button class="btn-success" onclick="saveAndPrintOrder()">✅ حفظ وإغلاق الطلب (وطباعة)</button>
+        <button class="btn-danger" onclick="clearCart()">🗑️ تفريغ السلة</button>
+
+        <h3 style="margin-top: 30px;">📜 سجل الطلبات السابقة</h3>
+        <div id="orders-history">
+            </div>
+        <button class="btn-secondary" onclick="clearHistory()">مسح السجل بالكامل</button>
+    </div>
+
+    <div id="receipt-print-area">
+        <div class="receipt-header">
+            <h3>حاسبة المبيعات والطلبات</h3>
+            <p id="receipt-date"></p>
+            <p>فاتورة مبيعات نقداً</p>
+        </div>
+        <div class="divider"></div>
+        <div id="receipt-items">
+            </div>
+        <div class="divider"></div>
+        <div class="receipt-line" style="font-weight: bold; font-size: 16px;">
+            <span>المجموع النهائي:</span>
+            <span id="receipt-total-val">0.00 ريال</span>
+        </div>
+        <div class="divider"></div>
+        <p style="text-align: center; font-size: 12px; margin-top: 10px;">شكراً لتعاملكم معنا 🙏</p>
     </div>
 
     <script src="script.js"></script>
